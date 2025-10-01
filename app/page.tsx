@@ -4,10 +4,8 @@ import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import SongSelector from './components/SongSelector';
 import { Song } from './game/config/songs';
-// FIX: Import audio libraries to unlock them
 import { Howler } from 'howler';
 import * as Tone from 'tone';
-
 
 const GameCanvas = dynamic(() => import('./components/GameCanvas'), {
     ssr: false,
@@ -18,15 +16,12 @@ export default function HomePage() {
     const [selectedSong, setSelectedSong] = useState<Song | null>(null);
 
     const handleSongSelect = async (song: Song) => {
-        // FIX: Unlock the audio context after the first user click
-        // This is necessary to comply with browser autoplay policies.
         if (Tone.context.state !== 'running') {
             await Tone.start();
         }
         if (Howler.ctx && Howler.ctx.state !== 'running') {
             await Howler.ctx.resume();
         }
-
         setSelectedSong(song);
         setGameState('playing');
     };
@@ -44,7 +39,8 @@ export default function HomePage() {
                     <SongSelector onSongSelect={handleSongSelect} />
                 ) : (
                     <GameCanvas
-                        selectedSong={selectedSong}
+                        // FIX: Convert null to undefined to match the expected prop type
+                        selectedSong={selectedSong ?? undefined}
                         onGameEnd={handleGameEnd}
                     />
                 )}

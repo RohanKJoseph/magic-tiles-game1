@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';  
+import { GameScene } from '../../game/scenes/GameScene';
 
 interface GameHUDProps {
-    gameScene?: any;  
+    gameScene?: GameScene;  
 }
 
 interface GameStats {

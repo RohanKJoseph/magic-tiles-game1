@@ -1,6 +1,7 @@
 // src/game/managers/AudioManager.ts
-import { Howl, Howler } from 'howler';
+import { Howl} from 'howler';
 import * as Tone from 'tone';
+import { Song } from '../config/songs';
 
 export class AudioManager {
     private scene: Phaser.Scene;
@@ -40,7 +41,7 @@ export class AudioManager {
         Tone.Master.connect(this.analyzer);
     }
     
-    public loadSong(song: any): void {
+    public loadSong(song: Song): void {
         if (this.currentSong) {
             this.currentSong.stop();
         }

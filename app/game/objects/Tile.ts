@@ -98,7 +98,7 @@ import * as Phaser from 'phaser';
         });
     }
 
-    public moveDown(speed: number): void { 
+    public scrollDown(speed: number): void { 
     this.y += speed; 
     console.log(`Tile moving, new Y coordinate: ${this.y}`);
 }

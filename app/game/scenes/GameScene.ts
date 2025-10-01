@@ -1,10 +1,10 @@
-// src/game/scenes/GameScene.ts
 import * as Phaser from 'phaser';
 import { Tile } from '../objects/Tile';
 import { WordCollectionManager } from '../objects/WordLetters';
 import { AudioManager } from '../managers/AudioManager';
 import { ScoreManager } from '../managers/ScoreManager';
 import { TileType, SPECIAL_TILES } from '../config/tileTypes';
+import { Song } from '../config/songs';
 
 export class GameScene extends Phaser.Scene {
     private tiles: Tile[] = [];
@@ -13,15 +13,17 @@ export class GameScene extends Phaser.Scene {
     private scoreManager!: ScoreManager;
     private audioManager!: AudioManager;
     private wordManager!: WordCollectionManager;
-    private currentSong?: any;
+    private currentSong?: Song;
     private isFrozen: boolean = false;
     private isGameOver: boolean = false;
+    // FIX: Add a property to hold the freeze overlay object
+    private freezeOverlay?: Phaser.GameObjects.Rectangle;
 
     constructor() {
         super({ key: 'GameScene' });
     }
 
-    create(data: { song: any }): void {
+    create(data: { song: Song }): void {
         this.isGameOver = false;
         this.isFrozen = false;
         this.gameSpeed = 2;
@@ -117,7 +119,7 @@ export class GameScene extends Phaser.Scene {
                 this.tiles.splice(i, 1);
                 continue;
             }
-            tile.moveDown(this.gameSpeed);
+            tile.scrollDown(this.gameSpeed);
             if (tile.isOffScreen()) {
                 tile.destroy();
                 this.tiles.splice(i, 1);
@@ -131,21 +133,49 @@ export class GameScene extends Phaser.Scene {
         this.audioManager.playSound('tile-hit');
     }
 
-    private onFireTileExpired(tile: Tile): void {
+    private onFireTileExpired(): void {
         this.scoreManager.addScore(-50);
     }
 
-    private onIceTileHit(tile: Tile): void { this.activateIceEffect(); }
-    private onFreezeTileHit(tile: Tile): void { this.activateFreezeEffect(); }
-    private onTeleportTileHit(tile: Tile): void { console.log('Teleport effect triggered!'); }
-    private onHintTileHit(tile: Tile): void { console.log('Hint effect triggered!'); }
-    private onShuffleTileHit(tile: Tile): void { console.log('Shuffle effect triggered!'); }
-    private onSwapTileHit(tile: Tile): void { console.log('Swap effect triggered!'); }
+    private onIceTileHit(): void { this.activateIceEffect(); }
+    private onFreezeTileHit(): void { this.activateFreezeEffect(); }
+    private onTeleportTileHit(): void { console.log('Teleport effect triggered!'); }
+    private onHintTileHit(): void { console.log('Hint effect triggered!'); }
+    private onShuffleTileHit(): void { console.log('Shuffle effect triggered!'); }
+    private onSwapTileHit(): void { console.log('Swap effect triggered!'); }
 
-    private activateIceEffect(): void {}
-    private activateFreezeEffect(): void {}
+    private activateIceEffect(): void {
+        const iceOverlay = this.add.rectangle(
+            this.cameras.main.centerX, this.cameras.main.centerY,
+            this.cameras.main.width, this.cameras.main.height,
+            0x87ceeb, 0.3
+        );
+        this.time.delayedCall(3000, () => iceOverlay.destroy());
+    }
 
-    private onWordCompleted(word: string): void {
+    // FIX: Rewrote this entire method to use a Rectangle overlay
+    private activateFreezeEffect(): void {
+        this.isFrozen = true;
+        
+        // Create a blue, semi-transparent rectangle that covers the screen
+        this.freezeOverlay = this.add.rectangle(
+            this.cameras.main.centerX,
+            this.cameras.main.centerY,
+            this.cameras.main.width,
+            this.cameras.main.height,
+            0x4169e1
+        );
+        this.freezeOverlay.setAlpha(0.3);
+        this.freezeOverlay.setDepth(100); // Ensure it's on top of other game objects
+
+        // After 3 seconds, unfreeze the game and destroy the overlay
+        this.time.delayedCall(3000, () => {
+            this.isFrozen = false;
+            this.freezeOverlay?.destroy();
+        });
+    }
+
+    private onWordCompleted(): void {
         this.scoreManager.addScore(1000);
         this.audioManager.playSound('word-complete');
     }

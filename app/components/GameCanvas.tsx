@@ -6,9 +6,10 @@ import { gameConfig } from '../game/config/gameConfig';
 import { MenuScene } from '../game/scenes/MenuScene';
 import { GameScene } from '../game/scenes/GameScene';
 import { GameOverScene } from '../game/scenes/GameOverScene';
+import { Song } from '../game/config/songs';
 
 interface GameCanvasProps {
-    selectedSong?: any;
+    selectedSong?: Song;
     onGameEnd?: (score: number) => void;
 }
 
