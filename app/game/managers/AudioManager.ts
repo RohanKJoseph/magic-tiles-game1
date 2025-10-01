@@ -14,7 +14,7 @@ export class AudioManager {
         this.setupAudioAnalysis();
     }
 
-    private loadSoundEffects(): void {  
+    private loadSoundEffects(): void {
         const effects = [
             { key: 'tile-hit', path: '/sounds/tile-hit.wav' },
             { key: 'fire-effect', path: '/sounds/fire.wav' },
@@ -33,8 +33,6 @@ export class AudioManager {
     }
 
     private setupAudioAnalysis(): void {
-        // FIX: Check if the context is running and resume it if necessary.
-        // This prevents the "Cannot suspend a closed AudioContext" error during hot reloads.
         if (Tone.context.state !== 'running') {
             Tone.context.resume();
         }
@@ -52,10 +50,11 @@ export class AudioManager {
             volume: 0.8,
             onload: () => {
                 console.log('Song loaded:', song.title);
+                this.playSong(); // Play the song once it's loaded
             },
             onplay: () => {
                 this.scene.events.emit('song-started');
-                this.playSong(); // Ensure song plays after loading
+                // FIX: Removed the recursive call to this.playSong() from here
             },
             onend: () => {
                 this.scene.events.emit('song-ended');

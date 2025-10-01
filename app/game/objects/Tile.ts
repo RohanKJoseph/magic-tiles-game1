@@ -98,9 +98,10 @@ import * as Phaser from 'phaser';
         });
     }
 
-     public moveTileDown(speed: number): void { 
-         this.y += speed; 
-    }
+    public moveDown(speed: number): void { 
+    this.y += speed; 
+    console.log(`Tile moving, new Y coordinate: ${this.y}`);
+}
 
      public isOffScreen(): boolean { 
          return this.y > this.scene.cameras.main.height + 60; 

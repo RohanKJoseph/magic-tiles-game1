@@ -4,17 +4,29 @@ import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import SongSelector from './components/SongSelector';
 import { Song } from './game/config/songs';
+// FIX: Import audio libraries to unlock them
+import { Howler } from 'howler';
+import * as Tone from 'tone';
 
-// Dynamically import the GameCanvas component with SSR turned off
+
 const GameCanvas = dynamic(() => import('./components/GameCanvas'), {
-    ssr: false, // This is the crucial part that fixes the error
+    ssr: false,
 });
 
 export default function HomePage() {
     const [gameState, setGameState] = useState<'menu' | 'playing'>('menu');
     const [selectedSong, setSelectedSong] = useState<Song | null>(null);
 
-    const handleSongSelect = (song: Song) => {
+    const handleSongSelect = async (song: Song) => {
+        // FIX: Unlock the audio context after the first user click
+        // This is necessary to comply with browser autoplay policies.
+        if (Tone.context.state !== 'running') {
+            await Tone.start();
+        }
+        if (Howler.ctx && Howler.ctx.state !== 'running') {
+            await Howler.ctx.resume();
+        }
+
         setSelectedSong(song);
         setGameState('playing');
     };
